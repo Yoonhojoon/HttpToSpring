@@ -1,0 +1,38 @@
+package com.fullstacknetwork.http;
+
+import org.json.JSONObject;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.io.IOException;
+
+public class lec_06_prg_04_json_example {
+    public static void main(String[] args) {
+        try {
+            // JSON 파일 경로 설정
+            String relativePath = "src/main/java/com/fullstacknetwork/http/example/lec-p6-prg-04-json-example.json";
+            // 디버깅용 출력
+            System.out.println("현재 작업 디렉토리: " + System.getProperty("user.dir"));
+            System.out.println("파일 경로: " + Paths.get(relativePath).toAbsolutePath());
+            System.out.println("파일 존재 여부: " + Files.exists(Paths.get(relativePath)));
+            // JSON 파일 읽기
+            String jsonContent = new String(Files.readAllBytes(Paths.get(relativePath)));
+
+            // JSON 문자열을 객체로 파싱
+            JSONObject superHeroes = new JSONObject(jsonContent);
+
+            // 파이썬 코드와 동일한 데이터 출력
+            System.out.println(superHeroes.getString("homeTown")); // Metro City
+            System.out.println(superHeroes.getBoolean("active")); // true
+            System.out.println(superHeroes.getJSONArray("members")
+                    .getJSONObject(1)
+                    .getJSONArray("powers")
+                    .getString(2)); // Superhuman reflexes
+
+        } catch (IOException e) {
+            System.err.println("파일을 찾을 수 없습니다: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("JSON 처리 중 오류 발생: " + e.getMessage());
+        }
+    }
+}
