@@ -10,11 +10,8 @@ public class lec_06_prg_04_json_example {
     public static void main(String[] args) {
         try {
             // JSON 파일 경로 설정
-            String relativePath = "src/main/java/com/fullstacknetwork/http/example/lec-p6-prg-04-json-example.json";
-            // 디버깅용 출력
-            System.out.println("현재 작업 디렉토리: " + System.getProperty("user.dir"));
-            System.out.println("파일 경로: " + Paths.get(relativePath).toAbsolutePath());
-            System.out.println("파일 존재 여부: " + Files.exists(Paths.get(relativePath)));
+            String relativePath = "src/main/java/com/fullstacknetwork/http/lec-p6-prg-04-json-example.json";
+
             // JSON 파일 읽기
             String jsonContent = new String(Files.readAllBytes(Paths.get(relativePath)));
 

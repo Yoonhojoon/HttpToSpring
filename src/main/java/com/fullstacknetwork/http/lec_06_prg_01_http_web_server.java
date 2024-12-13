@@ -1,9 +1,5 @@
 package com.fullstacknetwork.http;
 
-import com.fullstacknetwork.http.dto.RequestHandler;
-import com.fullstacknetwork.http.dto.request.HttpRequest;
-import com.fullstacknetwork.http.dto.response.HttpResponse;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -15,6 +11,57 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class lec_06_prg_01_http_web_server {
+    // 내부 클래스로 HttpRequest 정의
+    static class HttpRequest {
+        private String method;
+        private String requestLine;
+        private String path;
+        private String version;
+
+        public static HttpRequest parse(String requestString) {
+            HttpRequest request = new HttpRequest();
+            String[] lines = requestString.split("\r\n");
+            String[] requestLine = lines[0].split(" ");
+
+            request.method = requestLine[0];
+            request.path = requestLine[1];
+            request.version = requestLine[2];
+            request.requestLine = lines[0];
+
+            return request;
+        }
+
+        public String getMethod() { return method; }
+        public String getRequestLine() { return requestLine; }
+        public String getPath() { return path; }
+        public String getVersion() { return version; }
+    }
+
+    // 내부 클래스로 HttpResponse 정의
+    static class HttpResponse {
+        private static final String NEW_LINE = "\r\n";
+        private final StringBuilder responseBuilder = new StringBuilder();
+
+        public HttpResponse() {
+            responseBuilder.append("HTTP/1.1 200 OK").append(NEW_LINE);
+            responseBuilder.append("Content-Type: text/html; charset=utf-8").append(NEW_LINE);
+            responseBuilder.append(NEW_LINE);
+            responseBuilder.append("<h1>Hello from Simple HTTP Server!</h1>");
+        }
+
+        public byte[] getBytes() {
+            return responseBuilder.toString().getBytes();
+        }
+    }
+
+    // 내부 클래스로 RequestHandler 정의
+    static class RequestHandler {
+        public HttpResponse handle(HttpRequest request) {
+            return new HttpResponse();
+        }
+    }
+
+    // 서버 관련 필드
     private final int port;
     private final Selector selector;
     private final ServerSocketChannel serverChannel;
@@ -32,12 +79,10 @@ public class lec_06_prg_01_http_web_server {
     public void start() throws IOException {
         System.out.println("## HTTP server started at http://localhost:" + port);
 
-        // Configure server channel
         serverChannel.configureBlocking(false);
         serverChannel.socket().bind(new InetSocketAddress(port));
         serverChannel.register(selector, SelectionKey.OP_ACCEPT);
 
-        // Event loop
         while (isRunning) {
             selector.select();
             Set<SelectionKey> selectedKeys = selector.selectedKeys();
@@ -81,7 +126,6 @@ public class lec_06_prg_01_http_web_server {
                 requestBuilder.append(new String(bytes));
                 buffer.clear();
 
-                // Check if we've reached the end of the HTTP request
                 if (requestBuilder.toString().contains("\r\n\r\n")) {
                     break;
                 }
@@ -92,17 +136,14 @@ public class lec_06_prg_01_http_web_server {
                 return;
             }
 
-            // Parse and handle the request
             HttpRequest request = HttpRequest.parse(requestBuilder.toString());
             HttpResponse response = requestHandler.handle(request);
 
-            // Send response
             ByteBuffer responseBuffer = ByteBuffer.wrap(response.getBytes());
             while (responseBuffer.hasRemaining()) {
                 clientChannel.write(responseBuffer);
             }
 
-            // Print request details
             System.out.println("::Client address   : " + clientChannel.socket().getInetAddress().getHostAddress());
             System.out.println("::Client port      : " + clientChannel.socket().getPort());
             System.out.println("::Request command  : " + request.getMethod());
@@ -120,5 +161,15 @@ public class lec_06_prg_01_http_web_server {
         selector.close();
         serverChannel.close();
         System.out.println("HTTP server stopped.");
+    }
+
+    // 메인 메소드 추가
+    public static void main(String[] args) {
+        try {
+            lec_06_prg_01_http_web_server server = new lec_06_prg_01_http_web_server(8080);
+            server.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
