@@ -14,14 +14,14 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
-public class HttpServer {
+public class HttpServer_1 {
     private final int port;
     private final Selector selector;
     private final ServerSocketChannel serverChannel;
     private boolean isRunning;
     private final RequestHandler requestHandler;
 
-    public HttpServer(int port) throws IOException {
+    public HttpServer_1(int port) throws IOException {
         this.port = port;
         this.selector = Selector.open();
         this.serverChannel = ServerSocketChannel.open();
